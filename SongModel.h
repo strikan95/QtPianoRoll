@@ -1,19 +1,19 @@
 #ifndef SONGMODEL_H
 #define SONGMODEL_H
 
-#include <QObject>
 #include <QMap>
+#include <QObject>
 #include <QPoint>
 
 #include "Defines.h"
 
 struct MNoteItem
 {
-    MNoteItem(NoteId id, int pitch, int startTime, int duration):
-        mId(id),
-        mPitch(pitch),
-        mStartTime(startTime),
-        mDuration(duration)
+    MNoteItem(NoteId id, int pitch, int startTime, int duration)
+        : mId(id)
+        , mPitch(pitch)
+        , mStartTime(startTime)
+        , mDuration(duration)
     {}
 
     NoteId mId;
@@ -30,7 +30,7 @@ public:
 
     NoteId addNote(int pitch, int startTime, int duration);
     void removeNote(NoteId id);
-    MNoteItem* note(NoteId id) const;
+    MNoteItem *note(NoteId id) const;
 
     void setPosition(NoteId id, QPoint pos);
 

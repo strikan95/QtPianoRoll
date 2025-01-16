@@ -4,7 +4,7 @@ SongModel::SongModel(QObject *parent)
     : QObject{parent}
 {}
 
-MNoteItem* SongModel::note(NoteId id) const
+MNoteItem *SongModel::note(NoteId id) const
 {
     return mNotes.contains(id) ? mNotes[id] : Q_NULLPTR;
 }
@@ -32,7 +32,7 @@ void SongModel::setPosition(NoteId id, QPoint pos)
 
 void SongModel::removeNote(NoteId id)
 {
-    if(!mNotes.contains(id))
+    if (!mNotes.contains(id))
         return;
 
     mNotes[id] = Q_NULLPTR;

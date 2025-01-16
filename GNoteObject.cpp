@@ -1,17 +1,17 @@
 #include "GNoteObject.h"
 
+#include <QBrush>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QPen>
-#include <QBrush>
 
 #include "GPianoRollScene.h"
 #include "SongModel.h"
 
-GNoteObject::GNoteObject(GPianoRollScene *scene, QRect noteRect) :
-    mScene(scene),
-    mNoteRect(noteRect)
+GNoteObject::GNoteObject(GPianoRollScene *scene, QRect noteRect)
+    : mScene(scene)
+    , mNoteRect(noteRect)
 {
     scene->addItem(this);
 
@@ -25,10 +25,10 @@ void GNoteObject::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
     qDebug() << "Received press event";
 
-    if(!(e->button() & Qt::LeftButton))
+    if (!(e->button() & Qt::LeftButton))
         return;
 
-    if(!(e->modifiers() & Qt::ControlModifier))
+    if (!(e->modifiers() & Qt::ControlModifier))
         scene()->clearSelection();
     setSelected(true);
 
@@ -46,8 +46,7 @@ void GNoteObject::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
 {
     qDebug() << "Received move event";
 
-    if(isSelected())
-    {
+    if (isSelected()) {
         const QPointF mousePos = e->scenePos();
         const int cellXIndex = std::floor(mousePos.x() / NOTE_WIDTH);
         const int cellYIndex = std::floor(mousePos.y() / NOTE_HEIGHT);
@@ -67,14 +66,13 @@ void GNoteObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     const auto noteBrushColor = QColor::fromRgb(162, 210, 170);
 
     const auto highlightPen = QPen(highlightColor);
-    const auto noteBrush    = QBrush(noteBrushColor);
+    const auto noteBrush = QBrush(noteBrushColor);
 
     painter->save();
     painter->setPen(Qt::NoPen);
     painter->setBrush(noteBrush);
 
-    if(isSelected())
-    {
+    if (isSelected()) {
         painter->setPen(highlightPen);
     }
 
@@ -85,6 +83,6 @@ void GNoteObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 QRectF GNoteObject::boundingRect() const
 {
-    QMarginsF margins(10, 10, 10, 10);  // 10 px margin on all sides
+    QMarginsF margins(10, 10, 10, 10); // 10 px margin on all sides
     return QRectF(mNoteRect).marginsAdded(margins);
 }

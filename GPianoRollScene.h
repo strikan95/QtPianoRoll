@@ -2,8 +2,8 @@
 #define GPIANOROLLSCENE_H
 
 #include <QGraphicsScene>
-#include <QObject>
 #include <QMap>
+#include <QObject>
 
 #include "Defines.h"
 
@@ -16,7 +16,7 @@ class GPianoRollScene : public QGraphicsScene
 public:
     explicit GPianoRollScene(QObject *parent = nullptr);
 
-    SongModel* model() const { return mModel; }
+    SongModel *model() const { return mModel; }
     void setModel(SongModel *model);
 
     NoteId getNoteId(GNoteObject *obj);

@@ -1,10 +1,10 @@
 #include "GPianoRollScene.h"
 
-#include <QPainter>
 #include <QGraphicsSceneMouseEvent>
+#include <QPainter>
 
-#include "SongModel.h"
 #include "GNoteObject.h"
+#include "SongModel.h"
 
 GPianoRollScene::GPianoRollScene(QObject *parent)
     : QGraphicsScene(parent)
@@ -29,10 +29,9 @@ NoteId GPianoRollScene::getNoteId(GNoteObject *obj)
 void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
     switch (e->button()) {
-    case Qt::LeftButton:{
+    case Qt::LeftButton: {
         // pass click if there are items underneath
-        if(items(e->scenePos()).count())
-        {
+        if (items(e->scenePos()).count()) {
             QGraphicsScene::mousePressEvent(e);
             return;
         }
@@ -47,12 +46,9 @@ void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
         QGraphicsScene::mousePressEvent(e); // pass it onto new notes gobj
         break;
     }
-    case Qt::RightButton:
-    {
-        if(items(e->scenePos()).count())
-        {
-            foreach (const auto item, items(e->scenePos()))
-            {
+    case Qt::RightButton: {
+        if (items(e->scenePos()).count()) {
+            foreach (const auto item, items(e->scenePos())) {
                 NoteId id = mNoteGraphicalObjects.key(qgraphicsitem_cast<GNoteObject *>(item));
                 mModel->removeNote(id);
             }
@@ -68,9 +64,9 @@ void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
 void GPianoRollScene::onNoteAdded(NoteId id)
 {
     MNoteItem *noteP = model()->note(id);
-    if(noteP)
-    {
-        GNoteObject *ngobj = new GNoteObject(this, QRect(0, 0, NOTE_WIDTH * noteP->mDuration, NOTE_HEIGHT));
+    if (noteP) {
+        GNoteObject *ngobj
+            = new GNoteObject(this, QRect(0, 0, NOTE_WIDTH * noteP->mDuration, NOTE_HEIGHT));
         mNoteGraphicalObjects[id] = ngobj;
 
         QPoint noteIndex = QPoint(noteP->mStartTime, noteP->mPitch);
@@ -83,7 +79,7 @@ void GPianoRollScene::onNoteAdded(NoteId id)
 
 void GPianoRollScene::onNoteRemoved(NoteId id)
 {
-    if(!mNoteGraphicalObjects.contains(id))
+    if (!mNoteGraphicalObjects.contains(id))
         return;
 
     mNoteGraphicalObjects[id]->deleteLater();
@@ -92,12 +88,11 @@ void GPianoRollScene::onNoteRemoved(NoteId id)
 
 void GPianoRollScene::onNotePositionChanged(NoteId id)
 {
-    if(!mNoteGraphicalObjects.contains(id))
+    if (!mNoteGraphicalObjects.contains(id))
         return;
 
     MNoteItem *noteP = model()->note(id);
-    if(noteP)
-    {
+    if (noteP) {
         const int cellXPos = noteP->mStartTime * NOTE_WIDTH;
         const int cellYPos = noteP->mPitch * NOTE_HEIGHT;
 
@@ -121,7 +116,7 @@ void GPianoRollScene::drawBackground(QPainter *painter, const QRectF &rect)
     double bottom = std::floor(tl.y() / gridHeight - 0.5);
     double top = std::floor(br.y() / gridHeight + 1.0);
 
-    QPen linePen = QPen(QColor::fromRgb(36,52,62));
+    QPen linePen = QPen(QColor::fromRgb(36, 52, 62));
     linePen.setWidth(1);
 
     const auto bgColor1 = QColor::fromRgb(46, 62, 72);
@@ -138,7 +133,8 @@ void GPianoRollScene::drawBackground(QPainter *painter, const QRectF &rect)
         painter->setBrush(bgBrush);
         painter->setPen(Qt::NoPen);
 
-        QRectF rect(QPointF(0, yi * gridHeight), QPointF((right + 1) * gridWidth, (yi + 1) * gridHeight));
+        QRectF rect(QPointF(0, yi * gridHeight),
+                    QPointF((right + 1) * gridWidth, (yi + 1) * gridHeight));
         painter->drawRect(rect);
     }
 

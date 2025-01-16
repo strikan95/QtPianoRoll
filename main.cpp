@@ -2,8 +2,8 @@
 #include <QScreen>
 #include <QVBoxLayout>
 
-#include "GPianoRollView.h"
 #include "GPianoRollScene.h"
+#include "GPianoRollView.h"
 #include "SongModel.h"
 
 int main(int argc, char *argv[])
@@ -35,7 +35,10 @@ int main(int argc, char *argv[])
     int screenWidth = screen->geometry().width();
     int screenHeight = screen->geometry().height();
 
-    mainWidget.setGeometry((screenWidth/2)-(width/2), (screenHeight/2)-(height/2), width, height);
+    mainWidget.setGeometry((screenWidth / 2) - (width / 2),
+                           (screenHeight / 2) - (height / 2),
+                           width,
+                           height);
     mainWidget.showNormal();
 
     model->addNote(1, 2, 2);
