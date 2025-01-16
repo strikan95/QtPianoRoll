@@ -9,9 +9,9 @@
 #include "GPianoRollScene.h"
 #include "SongModel.h"
 
-GNoteObject::GNoteObject(GPianoRollScene *scene, QRect noteRect)
-    : mScene(scene)
-    , mNoteRect(noteRect)
+GNoteObject::GNoteObject(GPianoRollScene *scene, QRect noteRect) :
+    mScene(scene),
+    mNoteRect(noteRect)
 {
     scene->addItem(this);
 

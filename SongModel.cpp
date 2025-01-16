@@ -1,7 +1,7 @@
 #include "SongModel.h"
 
-SongModel::SongModel(QObject *parent)
-    : QObject{parent}
+SongModel::SongModel(QObject *parent) :
+    QObject{parent}
 {}
 
 MNoteItem *SongModel::note(NoteId id) const

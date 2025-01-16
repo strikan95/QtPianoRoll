@@ -1,8 +1,8 @@
 #include "GPianoRollView.h"
 #include "GPianoRollScene.h"
 
-GPianoRollView::GPianoRollView(QWidget *parent)
-    : QGraphicsView(parent)
+GPianoRollView::GPianoRollView(QWidget *parent) :
+    QGraphicsView(parent)
 {
     setDragMode(QGraphicsView::NoDrag);
     setRenderHint(QPainter::Antialiasing);

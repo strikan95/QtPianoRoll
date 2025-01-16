@@ -6,8 +6,8 @@
 #include "GNoteObject.h"
 #include "SongModel.h"
 
-GPianoRollScene::GPianoRollScene(QObject *parent)
-    : QGraphicsScene(parent)
+GPianoRollScene::GPianoRollScene(QObject *parent) :
+    QGraphicsScene(parent)
 {
     setBackgroundBrush(Qt::gray);
 }
