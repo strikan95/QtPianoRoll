@@ -1,9 +1,0 @@
-C:/repos/qt/QPianoRoll/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/QPianoRoll.dir
-C:/repos/qt/QPianoRoll/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
-C:/repos/qt/QPianoRoll/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
-C:/repos/qt/QPianoRoll/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/list_install_components.dir
-C:/repos/qt/QPianoRoll/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/install.dir
-C:/repos/qt/QPianoRoll/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/install/local.dir
-C:/repos/qt/QPianoRoll/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/install/strip.dir
-C:/repos/qt/QPianoRoll/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/QPianoRoll_autogen_timestamp_deps.dir
-C:/repos/qt/QPianoRoll/build/Desktop_Qt_6_8_1_MinGW_64_bit-Debug/CMakeFiles/QPianoRoll_autogen.dir
