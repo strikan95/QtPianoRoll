@@ -9,15 +9,28 @@ MNoteItem *SongModel::note(NoteId id) const
     return mNotes.contains(id) ? mNotes[id] : Q_NULLPTR;
 }
 
+NoteId SongModel::loadNote(int pitch, int startTime, int duration)
+{
+    NoteId id = createNote(pitch, startTime, duration);
+    emit noteLoaded(id);
+
+    return id;
+}
+
 NoteId SongModel::addNote(int pitch, int startTime, int duration)
+{
+    NoteId id = createNote(pitch, startTime, duration);
+    emit noteAdded(id);
+
+    return id;
+}
+
+NoteId SongModel::createNote(int pitch, int startTime, int duration)
 {
     NoteId id = mLastNoteId++;
     MNoteItem *note = new MNoteItem(id, pitch, startTime, duration);
 
     mNotes.insert(id, note);
-
-    emit noteAdded(id);
-
     return id;
 }
 
@@ -28,6 +41,17 @@ void SongModel::setPosition(NoteId id, QPoint pos)
     note->mPitch = pos.y();
 
     emit notePositionChanged(id);
+}
+
+void SongModel::setDuration(NoteId id, int duration)
+{
+    if(duration <= 0)
+        return;
+
+    MNoteItem *note = mNotes[id];
+    note->mDuration = duration;
+
+    emit noteDurationChanged(id);
 }
 
 void SongModel::removeNote(NoteId id)

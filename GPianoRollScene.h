@@ -21,16 +21,25 @@ public:
 
     NoteId getNoteId(GNoteObject *obj);
 
+    QPointF cellRectAt(GIndex index);
+    QPointF cellRectAt(QPointF pos);
+    GIndex cellIndexAt(QPointF pos);
+
 protected:
     void drawBackground(QPainter *painter, const QRectF &rect) override;
 
     void mousePressEvent(QGraphicsSceneMouseEvent *e) override;
 
 public Q_SLOTS:
+    void onNoteLoaded(NoteId id);
     void onNoteAdded(NoteId id);
     void onNoteRemoved(NoteId id);
 
     void onNotePositionChanged(NoteId id);
+    void onNoteDurationChanged(NoteId id);
+
+private:
+    GNoteObject *createNoteObject(NoteId id);
 
 private:
     SongModel *mModel;

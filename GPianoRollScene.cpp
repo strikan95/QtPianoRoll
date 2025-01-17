@@ -16,14 +16,39 @@ void GPianoRollScene::setModel(SongModel *model)
 {
     mModel = model;
 
+    connect(model, &SongModel::noteLoaded, this, &GPianoRollScene::onNoteLoaded);
     connect(model, &SongModel::noteAdded, this, &GPianoRollScene::onNoteAdded);
     connect(model, &SongModel::noteRemoved, this, &GPianoRollScene::onNoteRemoved);
     connect(model, &SongModel::notePositionChanged, this, &GPianoRollScene::onNotePositionChanged);
+    connect(model, &SongModel::noteDurationChanged, this, &GPianoRollScene::onNoteDurationChanged);
 }
 
 NoteId GPianoRollScene::getNoteId(GNoteObject *obj)
 {
     return mNoteGraphicalObjects.key(obj);
+}
+
+// for snapping to the grid
+QPointF GPianoRollScene::cellRectAt(QPointF scenePos)
+{
+    GIndex index = cellIndexAt(scenePos);
+    return QPointF(index.col() * NOTE_WIDTH, index.row() * NOTE_HEIGHT);
+}
+
+QPointF GPianoRollScene::cellRectAt(GIndex index)
+{
+    const double cellXPos = index.col() * NOTE_WIDTH;
+    const double cellYPos = index.row() * NOTE_HEIGHT;
+
+    return QPointF(cellXPos, cellYPos);
+}
+
+GIndex GPianoRollScene::cellIndexAt(QPointF pos)
+{
+    const int cellRowPos = std::floor(pos.y() / NOTE_HEIGHT);
+    const int cellColPos = std::floor(pos.x() / NOTE_WIDTH);
+
+    return GIndex(cellRowPos, cellColPos);
 }
 
 void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
@@ -38,11 +63,9 @@ void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
 
         // else well start adding new item
         QPointF scenePressPos = e->scenePos();
+        auto cellIndex = cellIndexAt(scenePressPos);
 
-        int cellRowIndex = std::floor(scenePressPos.y() / NOTE_HEIGHT);
-        int cellColIndex = std::floor(scenePressPos.x() / NOTE_WIDTH);
-
-        model()->addNote(cellRowIndex, cellColIndex, 1);
+        model()->addNote(cellIndex.row(), cellIndex.col(), 1);
         QGraphicsScene::mousePressEvent(e); // pass it onto new notes gobj
         break;
     }
@@ -61,20 +84,39 @@ void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
     }
 }
 
+void GPianoRollScene::onNoteLoaded(NoteId id)
+{
+    GNoteObject *ngobj = createNoteObject(id);
+    if(ngobj != Q_NULLPTR)
+    {
+        ngobj->setInitialState(GNoteState::PLACED);
+    }
+}
+
 void GPianoRollScene::onNoteAdded(NoteId id)
+{
+    GNoteObject *ngobj = createNoteObject(id);
+    if(ngobj != Q_NULLPTR)
+    {
+        ngobj->setInitialState(GNoteState::PLACING);
+    }
+}
+
+GNoteObject *GPianoRollScene::createNoteObject(NoteId id)
 {
     MNoteItem *noteP = model()->note(id);
     if (noteP) {
         GNoteObject *ngobj
-            = new GNoteObject(this, QRect(0, 0, NOTE_WIDTH * noteP->mDuration, NOTE_HEIGHT));
+            = new GNoteObject(this, id, QRect(0, 0, NOTE_WIDTH * noteP->mDuration, NOTE_HEIGHT), GNoteState::INITIALIZING);
         mNoteGraphicalObjects[id] = ngobj;
 
-        QPoint noteIndex = QPoint(noteP->mStartTime, noteP->mPitch);
-        const double cellXPos = noteIndex.x() * NOTE_WIDTH;
-        const double cellYPos = noteIndex.y() * NOTE_HEIGHT;
+        auto cellPos = cellRectAt(noteP->index());
+        ngobj->setPos(cellPos.x(), cellPos.y());
 
-        ngobj->setPos(cellXPos, cellYPos);
+        return ngobj;
     }
+
+    return Q_NULLPTR;
 }
 
 void GPianoRollScene::onNoteRemoved(NoteId id)
@@ -93,10 +135,22 @@ void GPianoRollScene::onNotePositionChanged(NoteId id)
 
     MNoteItem *noteP = model()->note(id);
     if (noteP) {
-        const int cellXPos = noteP->mStartTime * NOTE_WIDTH;
-        const int cellYPos = noteP->mPitch * NOTE_HEIGHT;
+        auto cellPos = cellRectAt(noteP->index());
 
-        mNoteGraphicalObjects[id]->setPos(cellXPos, cellYPos);
+        mNoteGraphicalObjects[id]->setPos(cellPos.x(), cellPos.y());
+    }
+}
+
+void GPianoRollScene::onNoteDurationChanged(NoteId id)
+{
+    if (!mNoteGraphicalObjects.contains(id))
+        return;
+
+    MNoteItem *noteP = model()->note(id);
+    if (noteP)
+    {
+        GNoteObject *ngobj = mNoteGraphicalObjects[id];
+        ngobj->setNoteRect(QRect(0, 0, noteP->duration() * NOTE_WIDTH, NOTE_HEIGHT));
     }
 }
 
