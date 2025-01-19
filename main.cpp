@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
                            height);
     mainWidget.showNormal();
 
-    model->loadNote(1, 2, 2);
+    model->addNote(1, 2, 2);
 
     return a.exec();
 }

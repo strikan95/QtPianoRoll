@@ -16,14 +16,13 @@ void GPianoRollScene::setModel(SongModel *model)
 {
     mModel = model;
 
-    connect(model, &SongModel::noteLoaded, this, &GPianoRollScene::onNoteLoaded);
     connect(model, &SongModel::noteAdded, this, &GPianoRollScene::onNoteAdded);
     connect(model, &SongModel::noteRemoved, this, &GPianoRollScene::onNoteRemoved);
     connect(model, &SongModel::notePositionChanged, this, &GPianoRollScene::onNotePositionChanged);
     connect(model, &SongModel::noteDurationChanged, this, &GPianoRollScene::onNoteDurationChanged);
 }
 
-NoteId GPianoRollScene::getNoteId(GNoteObject *obj)
+GNoteId GPianoRollScene::getGNoteId(GNoteObject *obj)
 {
     return mNoteGraphicalObjects.key(obj);
 }
@@ -56,6 +55,9 @@ void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
     switch (e->button()) {
     case Qt::LeftButton: {
         // pass click if there are items underneath
+
+        qDebug() << mouseGrabberItem();
+
         if (items(e->scenePos()).count()) {
             QGraphicsScene::mousePressEvent(e);
             return;
@@ -65,14 +67,17 @@ void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
         QPointF scenePressPos = e->scenePos();
         auto cellIndex = cellIndexAt(scenePressPos);
 
-        model()->addNote(cellIndex.row(), cellIndex.col(), 1);
+        GNoteId id = model()->addNote(cellIndex.row(), cellIndex.col(), 1);
+        GNoteObject *ngobj = mNoteGraphicalObjects[id];
+
+        ngobj->setState(e->modifiers() & Qt::ShiftModifier ? GNoteState::RESIZING : GNoteState::MOVING);
         QGraphicsScene::mousePressEvent(e); // pass it onto new notes gobj
         break;
     }
     case Qt::RightButton: {
         if (items(e->scenePos()).count()) {
             foreach (const auto item, items(e->scenePos())) {
-                NoteId id = mNoteGraphicalObjects.key(qgraphicsitem_cast<GNoteObject *>(item));
+                GNoteId id = mNoteGraphicalObjects.key(qgraphicsitem_cast<GNoteObject *>(item));
                 mModel->removeNote(id);
             }
         }
@@ -84,30 +89,17 @@ void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
     }
 }
 
-void GPianoRollScene::onNoteLoaded(NoteId id)
+void GPianoRollScene::onNoteAdded(GNoteId id)
 {
-    GNoteObject *ngobj = createNoteObject(id);
-    if(ngobj != Q_NULLPTR)
-    {
-        ngobj->setInitialState(GNoteState::PLACED);
-    }
+    createNoteObject(id);
 }
 
-void GPianoRollScene::onNoteAdded(NoteId id)
+GNoteObject *GPianoRollScene::createNoteObject(GNoteId id)
 {
-    GNoteObject *ngobj = createNoteObject(id);
-    if(ngobj != Q_NULLPTR)
-    {
-        ngobj->setInitialState(GNoteState::PLACING);
-    }
-}
-
-GNoteObject *GPianoRollScene::createNoteObject(NoteId id)
-{
-    MNoteItem *noteP = model()->note(id);
+    GNoteItem *noteP = model()->note(id);
     if (noteP) {
         GNoteObject *ngobj
-            = new GNoteObject(this, id, QRect(0, 0, NOTE_WIDTH * noteP->mDuration, NOTE_HEIGHT), GNoteState::INITIALIZING);
+            = new GNoteObject(this, id, QRect(0, 0, NOTE_WIDTH * noteP->mDuration, NOTE_HEIGHT));
         mNoteGraphicalObjects[id] = ngobj;
 
         auto cellPos = cellRectAt(noteP->index());
@@ -119,7 +111,7 @@ GNoteObject *GPianoRollScene::createNoteObject(NoteId id)
     return Q_NULLPTR;
 }
 
-void GPianoRollScene::onNoteRemoved(NoteId id)
+void GPianoRollScene::onNoteRemoved(GNoteId id)
 {
     if (!mNoteGraphicalObjects.contains(id))
         return;
@@ -128,12 +120,12 @@ void GPianoRollScene::onNoteRemoved(NoteId id)
     mNoteGraphicalObjects[id] = Q_NULLPTR;
 }
 
-void GPianoRollScene::onNotePositionChanged(NoteId id)
+void GPianoRollScene::onNotePositionChanged(GNoteId id)
 {
     if (!mNoteGraphicalObjects.contains(id))
         return;
 
-    MNoteItem *noteP = model()->note(id);
+    GNoteItem *noteP = model()->note(id);
     if (noteP) {
         auto cellPos = cellRectAt(noteP->index());
 
@@ -141,12 +133,12 @@ void GPianoRollScene::onNotePositionChanged(NoteId id)
     }
 }
 
-void GPianoRollScene::onNoteDurationChanged(NoteId id)
+void GPianoRollScene::onNoteDurationChanged(GNoteId id)
 {
     if (!mNoteGraphicalObjects.contains(id))
         return;
 
-    MNoteItem *noteP = model()->note(id);
+    GNoteItem *noteP = model()->note(id);
     if (noteP)
     {
         GNoteObject *ngobj = mNoteGraphicalObjects[id];

@@ -10,27 +10,20 @@ class GPianoRollScene;
 class GNoteObject;
 
 enum GNoteState {
-    INITIALIZING,
     MOVING,
     RESIZING,
-    PLACING,
-    PLACED
+    IDLE
 };
 
 class GNoteObject : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    GNoteObject(GPianoRollScene *scene, NoteId id, QRect noteRect, GNoteState state = GNoteState::INITIALIZING);
+    GNoteObject(GPianoRollScene *scene, GNoteId id, QRect noteRect, GNoteState state = GNoteState::IDLE);
     QRectF boundingRect() const override;
 
     void setNoteRect(QRect noteRect) { prepareGeometryChange(); mNoteRect = noteRect; }
-    void setInitialState(GNoteState state)
-    {
-        if(mState != GNoteState::INITIALIZING)
-            return;
-        mState = state;
-    }
+    void setState(GNoteState state);
 
 protected:
     void paint(QPainter *painter,
@@ -48,7 +41,7 @@ private:
 
 private:
     GPianoRollScene *mScene;
-    const NoteId mId;
+    const GNoteId mId;
     QRect mNoteRect;
 
     GNoteState mState;

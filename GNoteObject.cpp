@@ -10,7 +10,7 @@
 #include "GPianoRollScene.h"
 #include "SongModel.h"
 
-GNoteObject::GNoteObject(GPianoRollScene *scene, NoteId id, QRect noteRect, GNoteState state) :
+GNoteObject::GNoteObject(GPianoRollScene *scene, GNoteId id, QRect noteRect, GNoteState state) :
     mScene(scene),
     mId(id),
     mNoteRect(noteRect),
@@ -26,10 +26,12 @@ GNoteObject::GNoteObject(GPianoRollScene *scene, NoteId id, QRect noteRect, GNot
 
 void GNoteObject::hoverMoveEvent(QGraphicsSceneHoverEvent *e)
 {
-    const auto mouseX = e->pos().x();
-    bool isResizing = (mState == GNoteState::PLACING && (e->modifiers() & Qt::ShiftModifier))
-                      || (isMouseNearEdge(mouseX) && mState != GNoteState::PLACING);
+    if(mState != GNoteState::IDLE)
+        return;
 
+    const auto mouseX = e->pos().x();
+
+    bool isResizing = isMouseNearEdge(mouseX);
     setCursor(isResizing ? Qt::SizeHorCursor : Qt::SizeAllCursor);
 }
 
@@ -49,14 +51,9 @@ void GNoteObject::mousePressEvent(QGraphicsSceneMouseEvent *e)
         setSelected(true);
         update();
 
-        const bool isResizing = e->modifiers() & Qt::ShiftModifier;
-        if (isResizing)
+        if(mState == GNoteState::IDLE)
         {
-            mState = GNoteState::RESIZING;
-        }
-        else if (mState != GNoteState::PLACING) // let state stay as PLACING if it already is
-        {
-            mState = GNoteState::MOVING;
+            setState(isMouseNearEdge(e->pos().x()) ? GNoteState::RESIZING : GNoteState::MOVING);
         }
     }
 
@@ -65,16 +62,14 @@ void GNoteObject::mousePressEvent(QGraphicsSceneMouseEvent *e)
 
 void GNoteObject::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
-    mState = GNoteState::PLACED;
+    mState = GNoteState::IDLE;
 }
 
 void GNoteObject::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
 {
     switch (mState) {
-    case GNoteState::PLACING:
     case GNoteState::MOVING:
     {
-        qDebug() << "Moving note";
         const QPointF mousePos = e->scenePos();
         GIndex index = mScene->cellIndexAt(mousePos);
 
@@ -83,8 +78,6 @@ void GNoteObject::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
     }
     case GNoteState::RESIZING:
     {
-        qDebug() << "Resizing note";
-
         const QPointF mousePos = e->scenePos();
         const int mouseColIndex = mScene->cellIndexAt(mousePos).col();
         const int noteStartColIndex = mScene->cellIndexAt(pos()).col();
@@ -121,6 +114,14 @@ void GNoteObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->drawRoundedRect(mNoteRect, 5.0, 5.0);
     //painter->drawRoundedRect(1, 1, (mSize.width() * mDuration) - 2, mSize.height() - 2, 5.0, 5.0);
     painter->restore();
+}
+
+void GNoteObject::setState(GNoteState state)
+{
+    mState = state;
+
+    if(mState != GNoteState::IDLE)
+        setCursor(mState == GNoteState::RESIZING ? Qt::SizeHorCursor : Qt::SizeAllCursor);
 }
 
 QRectF GNoteObject::boundingRect() const

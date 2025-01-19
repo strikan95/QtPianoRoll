@@ -1,7 +1,7 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-using NoteId = unsigned int;
+using GNoteId = unsigned int;
 
 struct GIndex
 {

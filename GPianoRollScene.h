@@ -19,7 +19,7 @@ public:
     SongModel *model() const { return mModel; }
     void setModel(SongModel *model);
 
-    NoteId getNoteId(GNoteObject *obj);
+    GNoteId getGNoteId(GNoteObject *obj);
 
     QPointF cellRectAt(GIndex index);
     QPointF cellRectAt(QPointF pos);
@@ -31,19 +31,18 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *e) override;
 
 public Q_SLOTS:
-    void onNoteLoaded(NoteId id);
-    void onNoteAdded(NoteId id);
-    void onNoteRemoved(NoteId id);
+    void onNoteAdded(GNoteId id);
+    void onNoteRemoved(GNoteId id);
 
-    void onNotePositionChanged(NoteId id);
-    void onNoteDurationChanged(NoteId id);
+    void onNotePositionChanged(GNoteId id);
+    void onNoteDurationChanged(GNoteId id);
 
 private:
-    GNoteObject *createNoteObject(NoteId id);
+    GNoteObject *createNoteObject(GNoteId id);
 
 private:
     SongModel *mModel;
-    QMap<NoteId, GNoteObject *> mNoteGraphicalObjects;
+    QMap<GNoteId, GNoteObject *> mNoteGraphicalObjects;
     GNoteObject *mDraftNote;
 };
 

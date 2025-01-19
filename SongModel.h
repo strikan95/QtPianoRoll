@@ -7,9 +7,9 @@
 
 #include "Defines.h"
 
-struct MNoteItem
+struct GNoteItem
 {
-    MNoteItem(NoteId id, int pitch, int startTime, int duration)
+    GNoteItem(GNoteId id, int pitch, int startTime, int duration)
         : mId(id)
         , mPitch(pitch)
         , mStartTime(startTime)
@@ -17,12 +17,12 @@ struct MNoteItem
     {}
 
     GIndex index() const { return GIndex(mPitch, mStartTime); }
-    NoteId id() const { return mId; }
+    GNoteId id() const { return mId; }
     int startTime() const { return mStartTime; }
     int duration() const { return mDuration; }
     int pitch() const { return mPitch; }
 
-    NoteId mId;
+    GNoteId mId;
     int mPitch;
     int mStartTime;
     int mDuration;
@@ -34,27 +34,25 @@ class SongModel : public QObject
 public:
     explicit SongModel(QObject *parent = nullptr);
 
-    NoteId addNote(int pitch, int startTime, int duration);
-    NoteId loadNote(int pitch, int startTime, int duration);
-    void removeNote(NoteId id);
-    MNoteItem *note(NoteId id) const;
+    GNoteId addNote(int pitch, int startTime, int duration);
+    void removeNote(GNoteId id);
+    GNoteItem *note(GNoteId id) const;
 
-    void setPosition(NoteId id, QPoint pos);
-    void setDuration(NoteId id, int duration);
+    void setPosition(GNoteId id, QPoint pos);
+    void setDuration(GNoteId id, int duration);
 
 Q_SIGNALS:
-    void notePositionChanged(NoteId id);
-    void noteDurationChanged(NoteId id);
-    void noteAdded(NoteId id);
-    void noteLoaded(NoteId id);
-    void noteRemoved(NoteId id);
+    void notePositionChanged(GNoteId id);
+    void noteDurationChanged(GNoteId id);
+    void noteAdded(GNoteId id);
+    void noteRemoved(GNoteId id);
 
 private:
-    NoteId createNote(int pitch, int startTime, int duration);
+    GNoteId createNote(int pitch, int startTime, int duration);
 
 private:
-    NoteId mLastNoteId = 0;
-    QMap<NoteId, MNoteItem *> mNotes;
+    GNoteId mLastNoteId = 0;
+    QMap<GNoteId, GNoteItem *> mNotes;
 };
 
 #endif // SONGMODEL_H
