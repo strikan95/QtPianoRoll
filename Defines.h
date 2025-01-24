@@ -10,6 +10,16 @@ public:
     int row() const { return mRow; }
     int col() const { return mCol; }
 
+    bool isNull() const { return mRow != 0 || mCol != 0; }
+
+    GIndex operator+(const GIndex& other) const {
+        return {mRow + other.row(), mCol + other.col()};
+    }
+
+    GIndex operator-(const GIndex& other) const {
+        return {mRow - other.row(), mCol - other.col()};
+    }
+
 private:
     int mRow;
     int mCol;
