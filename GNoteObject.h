@@ -8,6 +8,7 @@
 
 class GPianoRollScene;
 class GNoteObject;
+class GNoteItem;
 
 enum GNoteState {
     MOVING,
@@ -34,10 +35,11 @@ protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *e) override;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *e) override;
 
-    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *e) override;
 
 private:
     bool isMouseNearEdge(int mouseX);
+    GNoteItem *getNoteData();
 
 private:
     GPianoRollScene *mScene;

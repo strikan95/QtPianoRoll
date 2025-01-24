@@ -26,11 +26,11 @@ GNoteId SongModel::createNote(int pitch, int startTime, int duration)
     return id;
 }
 
-void SongModel::setPosition(GNoteId id, QPoint pos)
+void SongModel::setPosition(GNoteId id, GIndex pos)
 {
     GNoteItem *note = mNotes[id];
-    note->mStartTime = pos.x();
-    note->mPitch = pos.y();
+    note->mStartTime = pos.col();
+    note->mPitch = pos.row();
 
     emit notePositionChanged(id);
 }

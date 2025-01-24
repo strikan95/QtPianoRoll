@@ -52,13 +52,12 @@ GIndex GPianoRollScene::cellIndexAt(QPointF pos)
 
 void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
+    bool hasItemsUnderCursor = items(e->scenePos()).count() > 0;
+
     switch (e->button()) {
     case Qt::LeftButton: {
         // pass click if there are items underneath
-
-        qDebug() << mouseGrabberItem();
-
-        if (items(e->scenePos()).count()) {
+        if (hasItemsUnderCursor) {
             QGraphicsScene::mousePressEvent(e);
             return;
         }
@@ -68,14 +67,12 @@ void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
         auto cellIndex = cellIndexAt(scenePressPos);
 
         GNoteId id = model()->addNote(cellIndex.row(), cellIndex.col(), 1);
-        GNoteObject *ngobj = mNoteGraphicalObjects[id];
-
-        ngobj->setState(e->modifiers() & Qt::ShiftModifier ? GNoteState::RESIZING : GNoteState::MOVING);
+        mDraftNoteId = id;
         QGraphicsScene::mousePressEvent(e); // pass it onto new notes gobj
         break;
     }
     case Qt::RightButton: {
-        if (items(e->scenePos()).count()) {
+        if (hasItemsUnderCursor) {
             foreach (const auto item, items(e->scenePos())) {
                 GNoteId id = mNoteGraphicalObjects.key(qgraphicsitem_cast<GNoteObject *>(item));
                 mModel->removeNote(id);
@@ -91,11 +88,6 @@ void GPianoRollScene::mousePressEvent(QGraphicsSceneMouseEvent *e)
 
 void GPianoRollScene::onNoteAdded(GNoteId id)
 {
-    createNoteObject(id);
-}
-
-GNoteObject *GPianoRollScene::createNoteObject(GNoteId id)
-{
     GNoteItem *noteP = model()->note(id);
     if (noteP) {
         GNoteObject *ngobj
@@ -104,11 +96,7 @@ GNoteObject *GPianoRollScene::createNoteObject(GNoteId id)
 
         auto cellPos = cellRectAt(noteP->index());
         ngobj->setPos(cellPos.x(), cellPos.y());
-
-        return ngobj;
     }
-
-    return Q_NULLPTR;
 }
 
 void GPianoRollScene::onNoteRemoved(GNoteId id)

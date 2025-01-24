@@ -20,6 +20,8 @@ public:
     void setModel(SongModel *model);
 
     GNoteId getGNoteId(GNoteObject *obj);
+    GNoteId getDraftNoteId() { return mDraftNoteId; }
+    void clearDraftNote() { mDraftNoteId = -1; }
 
     QPointF cellRectAt(GIndex index);
     QPointF cellRectAt(QPointF pos);
@@ -38,12 +40,9 @@ public Q_SLOTS:
     void onNoteDurationChanged(GNoteId id);
 
 private:
-    GNoteObject *createNoteObject(GNoteId id);
-
-private:
     SongModel *mModel;
     QMap<GNoteId, GNoteObject *> mNoteGraphicalObjects;
-    GNoteObject *mDraftNote;
+    GNoteId mDraftNoteId = -1;
 };
 
 #endif // GPIANOROLLSCENE_H

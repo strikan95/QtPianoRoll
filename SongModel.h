@@ -38,7 +38,7 @@ public:
     void removeNote(GNoteId id);
     GNoteItem *note(GNoteId id) const;
 
-    void setPosition(GNoteId id, QPoint pos);
+    void setPosition(GNoteId id, GIndex pos);
     void setDuration(GNoteId id, int duration);
 
 Q_SIGNALS:

@@ -26,6 +26,12 @@ GNoteObject::GNoteObject(GPianoRollScene *scene, GNoteId id, QRect noteRect, GNo
 
 void GNoteObject::hoverMoveEvent(QGraphicsSceneHoverEvent *e)
 {
+    const bool isCurrentlyDraft = mScene->getDraftNoteId() == mId;
+    if(isCurrentlyDraft)
+    {
+        return;
+    }
+
     if(mState != GNoteState::IDLE)
         return;
 
@@ -46,12 +52,18 @@ void GNoteObject::mousePressEvent(QGraphicsSceneMouseEvent *e)
     if(e->button() & Qt::LeftButton)
     {
         const bool isCtrl = e->modifiers() & Qt::ControlModifier;
-        if(isCtrl)
+        if(!isCtrl)
             scene()->clearSelection();
         setSelected(true);
         update();
 
-        if(mState == GNoteState::IDLE)
+        const bool isCurrentlyDraft = mScene->getDraftNoteId() == mId;
+        if(isCurrentlyDraft)
+        {
+            const bool isShift = e->modifiers() & Qt::ShiftModifier;
+            setState(isShift ? GNoteState::RESIZING : GNoteState::MOVING);
+        }
+        else
         {
             setState(isMouseNearEdge(e->pos().x()) ? GNoteState::RESIZING : GNoteState::MOVING);
         }
@@ -63,36 +75,46 @@ void GNoteObject::mousePressEvent(QGraphicsSceneMouseEvent *e)
 void GNoteObject::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
     mState = GNoteState::IDLE;
+
+    if(mScene->getDraftNoteId() == mId)
+    {
+        mScene->clearDraftNote();
+    }
+
 }
 
 void GNoteObject::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
-{
+{    
+    const GIndex currMouseIndex = mScene->cellIndexAt(e->scenePos());
+    const GIndex prevMouseIndex = mScene->cellIndexAt(e->lastScenePos());
+    const GIndex indexDelta = currMouseIndex - prevMouseIndex;
+
+    if(indexDelta.row() == 0 && indexDelta.col() == 0)
+        return;
+
     switch (mState) {
     case GNoteState::MOVING:
     {
-        const QPointF mousePos = e->scenePos();
-        GIndex index = mScene->cellIndexAt(mousePos);
-
-        mScene->model()->setPosition(mId, QPoint(index.col(), index.row()));
+        mScene->model()->setPosition(mId, getNoteData()->index() + indexDelta);
         break;
     }
     case GNoteState::RESIZING:
     {
-        const QPointF mousePos = e->scenePos();
-        const int mouseColIndex = mScene->cellIndexAt(mousePos).col();
-        const int noteStartColIndex = mScene->cellIndexAt(pos()).col();
+        const auto note = getNoteData();
+        const auto noteEndCol = note->index().col() + (note->duration() - 1);
 
-        if(mouseColIndex < noteStartColIndex)
-            return;
-
-        int newDur = mouseColIndex - noteStartColIndex + 1;
-        mScene->model()->setDuration(mId, newDur);
-
+        if(prevMouseIndex.col() == noteEndCol)
+            mScene->model()->setDuration(mId, getNoteData()->duration() + indexDelta.col());
         break;
     }
     default:
         break;
     }
+}
+
+GNoteItem *GNoteObject::getNoteData()
+{
+    return mScene->model()->note(mId);
 }
 
 void GNoteObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -111,7 +133,7 @@ void GNoteObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
         painter->setPen(highlightPen);
     }
 
-    painter->drawRoundedRect(mNoteRect, 5.0, 5.0);
+    painter->drawRoundedRect(1, 1, mNoteRect.width() - 2, mNoteRect.height() - 2, 5.0, 5.0);
     //painter->drawRoundedRect(1, 1, (mSize.width() * mDuration) - 2, mSize.height() - 2, 5.0, 5.0);
     painter->restore();
 }
